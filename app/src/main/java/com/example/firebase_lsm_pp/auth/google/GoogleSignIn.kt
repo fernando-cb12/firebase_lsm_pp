@@ -57,7 +57,10 @@ class GoogleSignIn(private val context: Context) {
                 onResult(user)
 
             } catch (e: GetCredentialException) {
-                Log.e(TAG, "Error al obtener credenciales: ${e.localizedMessage}")
+                Log.e(TAG, "Error al obtener credenciales: ${e.localizedMessage}", e)
+                onResult(null)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error inesperado durante el login con Google: ${e.localizedMessage}", e)
                 onResult(null)
             }
         }
@@ -74,14 +77,17 @@ class GoogleSignIn(private val context: Context) {
     }
 
     private suspend fun firebaseAuthWithGoogle(idToken: String?): FirebaseUser? {
-        if (idToken == null) return null
+        if (idToken == null) {
+            Log.w(TAG, "ID token es null")
+            return null
+        }
 
         return try {
             val credential = GoogleAuthProvider.getCredential(idToken, null)
-            auth.signInWithCredential(credential).await()
-            auth.currentUser
+            val result = auth.signInWithCredential(credential).await()
+            result.user
         } catch (e: Exception) {
-            Log.e(TAG, "Error al autenticar con Firebase: ${e.localizedMessage}")
+            Log.e(TAG, "Error al autenticar con Firebase: ${e.localizedMessage}", e)
             null
         }
     }

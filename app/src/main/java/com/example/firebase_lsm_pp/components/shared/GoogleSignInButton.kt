@@ -4,8 +4,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,8 +16,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.firebase_lsm_pp.R
+import com.example.firebase_lsm_pp.auth.AuthViewModel
 import com.example.firebase_lsm_pp.auth.google.GoogleSignIn
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun GoogleSignInButton(
@@ -54,6 +60,39 @@ fun GoogleSignInButton(
                 text = text,
                 color = Color.Black
             )
+        }
+    }
+}
+
+
+@Composable
+fun GoogleUsernameScreen(
+    viewModel: AuthViewModel,
+    onFinish: () -> Unit
+) {
+    var username by remember { mutableStateOf("") }
+    var loading by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.padding(20.dp)) {
+        Text("Elige tu nombre de usuario")
+
+        TextField(
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Username") }
+        )
+
+        Button(
+            onClick = {
+                loading = true
+                CoroutineScope(Dispatchers.Main).launch {
+                    viewModel.saveGoogleUsername(username)
+                    loading = false
+                    onFinish()
+                }
+            }
+        ) {
+            Text("Continuar")
         }
     }
 }
