@@ -45,10 +45,17 @@ class AuthRepository(
 
     suspend fun login(email: String, password: String): Boolean {
         return try {
-            auth.signInWithEmailAndPassword(email, password).await()
+            val result = auth.signInWithEmailAndPassword(email, password).await()
+            val user = result.user
+            // Update streak after successful login
+            user?.uid?.let { userService.updateStreak(it) }
             true
         } catch (e: Exception) {
             false
         }
+    }
+    
+    suspend fun updateStreakOnLogin(uid: String) {
+        userService.updateStreak(uid)
     }
 }

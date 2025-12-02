@@ -6,5 +6,6 @@ data class AppUser(
     val username: String = "",
     val points: Int = 0,
     val streak: Int = 0,
+    val lastLogin: Long? = null,
     val createdAt: Long = System.currentTimeMillis()
 )

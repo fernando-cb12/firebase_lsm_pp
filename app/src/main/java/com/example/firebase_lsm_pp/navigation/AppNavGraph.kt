@@ -9,12 +9,14 @@ import com.example.firebase_lsm_pp.components.shared.GoogleUsernameScreen
 import com.example.firebase_lsm_pp.screens.HomeScreen
 import com.example.firebase_lsm_pp.screens.LoginScreen
 import com.example.firebase_lsm_pp.screens.RegisterScreen
+import com.example.firebase_lsm_pp.screens.StreakScreen
 
 sealed class Routes(val route: String) {
     object Login : Routes("login")
     object Register : Routes("register")
     object Home : Routes("home")
     object GoogleUsername : Routes("google_username")
+    object Streak : Routes("streak")
 }
 
 @Composable
@@ -37,7 +39,7 @@ fun AppNavGraph() {
             RegisterScreen(
                 authViewModel = authViewModel,
                 onRegisterSuccess = {
-                    navController.navigate(Routes.Home.route) {
+                    navController.navigate(Routes.Streak.route) {
                         popUpTo(Routes.Login.route) { inclusive = true }
                     }
                 },
@@ -57,11 +59,16 @@ fun AppNavGraph() {
             GoogleUsernameScreen(
                 viewModel = authViewModel,
                 onFinish = {
-                    navController.navigate(Routes.Home.route) {
+                    navController.navigate(Routes.Streak.route) {
                         popUpTo(Routes.Login.route) { inclusive = true }
                     }
                 }
             )
+        }
+
+        /** STREAK */
+        composable(Routes.Streak.route) {
+            StreakScreen(navController = navController)
         }
     }
 }

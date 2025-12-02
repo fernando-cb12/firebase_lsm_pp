@@ -62,7 +62,7 @@ fun LoginScreen(
                     val ok = viewModel.loginWithEmail(email, password)
                     loading = false
                     if (ok) {
-                        navController.navigate(Routes.Home.route) {
+                        navController.navigate(Routes.Streak.route) {
                             popUpTo(Routes.Login.route) { inclusive = true }
                         }
                     } else {
@@ -86,12 +86,12 @@ fun LoginScreen(
                 }
 
                 CoroutineScope(Dispatchers.Main).launch {
-                    val isNew = viewModel.handleGoogleLogin(user)
+                    val needsUsername = viewModel.handleGoogleLogin(user)
 
-                    if (isNew) {
+                    if (needsUsername) {
                         navController.navigate(Routes.GoogleUsername.route)
                     } else {
-                        navController.navigate(Routes.Home.route) {
+                        navController.navigate(Routes.Streak.route) {
                             popUpTo(Routes.Login.route) { inclusive = true }
                         }
                     }

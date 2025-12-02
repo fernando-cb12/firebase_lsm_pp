@@ -22,10 +22,16 @@ class AuthViewModel(
         googleUserName = user.displayName ?: ""
 
         val profileExists = repo.isUserProfileComplete(user.uid)
+        
+        // Update streak if user profile exists
+        if (profileExists) {
+            repo.updateStreakOnLogin(user.uid)
+        }
 
         needsUsername = !profileExists
 
-        return true
+        // Return true if user needs username (new user), false if existing user
+        return needsUsername
     }
 
     suspend fun saveGoogleUsername(username: String) {
@@ -34,6 +40,8 @@ class AuthViewModel(
             name = googleUserName,
             username = username
         )
+        // Update streak for new user (first login)
+        repo.updateStreakOnLogin(googleUid)
     }
 
     suspend fun registerWithEmail(
