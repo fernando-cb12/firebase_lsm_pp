@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.googleid)
     //navigation
     implementation("androidx.navigation:navigation-compose:2.9.6")
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
