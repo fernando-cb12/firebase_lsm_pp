@@ -6,10 +6,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
 import com.example.firebase_lsm_pp.auth.AuthViewModel
 import com.example.firebase_lsm_pp.components.shared.GoogleUsernameScreen
+import com.example.firebase_lsm_pp.screens.DictionaryScreen
 import com.example.firebase_lsm_pp.screens.HomeScreen
+import com.example.firebase_lsm_pp.screens.LeaderboardScreen
 import com.example.firebase_lsm_pp.screens.LoginScreen
+import com.example.firebase_lsm_pp.screens.MainScreen
 import com.example.firebase_lsm_pp.screens.RegisterScreen
 import com.example.firebase_lsm_pp.screens.StreakScreen
+import com.example.firebase_lsm_pp.screens.UserScreen
 
 sealed class Routes(val route: String) {
     object Login : Routes("login")
@@ -17,6 +21,9 @@ sealed class Routes(val route: String) {
     object Home : Routes("home")
     object GoogleUsername : Routes("google_username")
     object Streak : Routes("streak")
+    object Leaderboard : Routes("leaderboard")
+    object User : Routes("user")
+    object Dictionary : Routes("dictionary")
 }
 
 @Composable
@@ -49,11 +56,6 @@ fun AppNavGraph() {
             )
         }
 
-        /** HOME */
-        composable(Routes.Home.route) {
-            HomeScreen(navController)
-        }
-
         /** GOOGLE USERNAME */
         composable(Routes.GoogleUsername.route) {
             GoogleUsernameScreen(
@@ -69,6 +71,34 @@ fun AppNavGraph() {
         /** STREAK */
         composable(Routes.Streak.route) {
             StreakScreen(navController = navController)
+        }
+
+        /** HOME */
+        composable(Routes.Home.route) {
+            MainScreen(navController = navController) {
+                HomeScreen(navController)
+            }
+        }
+
+        /** LEADERBOARD */
+        composable(Routes.Leaderboard.route) {
+            MainScreen(navController = navController) {
+                LeaderboardScreen()
+            }
+        }
+
+        /** DICTIONARY */
+        composable(Routes.Dictionary.route) {
+            MainScreen(navController = navController) {
+                DictionaryScreen()
+            }
+        }
+
+        /** USER */
+        composable(Routes.User.route) {
+            MainScreen(navController = navController) {
+                UserScreen()
+            }
         }
     }
 }
