@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "246607412608",
+    "project_id": "fir-lsm-app",
+    "storage_bucket": "fir-lsm-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:246607412608:android:c126c6e3c1c6201e951565",
+        "android_client_info": {
+          "package_name": "com.example.firebase_lsm_pp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "246607412608-afeehc813m4bgotfjdnsh7edjb9oovvs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.firebase_lsm_pp",
+            "certificate_hash": "89fda78bfbb1ab60e9fd2acf80e714e4c4b734f1"
+          }
+        },
+        {
+          "client_id": "246607412608-0f7ellvf6o7g7d9irrtkjuar01c1g1u7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1RFYsCggUq61_glo-ltgIgGKrROvRu2Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "246607412608-0f7ellvf6o7g7d9irrtkjuar01c1g1u7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
