@@ -3,6 +3,7 @@ package com.example.firebase_lsm_pp.auth
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
+import java.util.Calendar
 
 class FirestoreUserService {
 
@@ -19,5 +20,64 @@ class FirestoreUserService {
 
     suspend fun updateUser(uid: String, data: Map<String, Any>) {
         users.document(uid).update(data).await()
+    }
+
+    /**
+     * Updates the user's streak based on their last login date.
+     * - If lastLogin is null or doesn't exist: set streak to 1
+     * - If lastLogin was yesterday: increment streak by 1
+     * - If lastLogin was today: don't change streak (already logged in today)
+     * - If lastLogin was more than 1 day ago: reset streak to 1
+     */
+    suspend fun updateStreak(uid: String) {
+        val user = getUser(uid) ?: return
+        
+        val today = getStartOfDay(System.currentTimeMillis())
+        val lastLogin = user.lastLogin?.let { getStartOfDay(it) }
+        
+        val newStreak: Int
+        val shouldUpdateLastLogin: Boolean
+        
+        when {
+            lastLogin == null -> {
+                // First login - start streak at 1
+                newStreak = 1
+                shouldUpdateLastLogin = true
+            }
+            lastLogin == today -> {
+                // Already logged in today - don't change anything
+                return
+            }
+            lastLogin == today - 86400000 -> {
+                // Logged in yesterday - increment streak
+                newStreak = user.streak + 1
+                shouldUpdateLastLogin = true
+            }
+            else -> {
+                // More than 1 day ago - reset streak to 1
+                newStreak = 1
+                shouldUpdateLastLogin = true
+            }
+        }
+        
+        if (shouldUpdateLastLogin) {
+            updateUser(uid, mapOf(
+                "streak" to newStreak,
+                "lastLogin" to System.currentTimeMillis()
+            ))
+        }
+    }
+    
+    /**
+     * Gets the start of the day (00:00:00) for a given timestamp
+     */
+    private fun getStartOfDay(timestamp: Long): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = timestamp
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
     }
 }
