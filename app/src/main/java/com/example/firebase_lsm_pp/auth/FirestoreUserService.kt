@@ -80,4 +80,24 @@ class FirestoreUserService {
         calendar.set(Calendar.MILLISECOND, 0)
         return calendar.timeInMillis
     }
+
+    /**
+     * Gets top users sorted by points (descending order)
+     * @param limit Maximum number of users to return (default: 20)
+     */
+    suspend fun getTopUsers(limit: Int = 20): List<AppUser> {
+        return try {
+            val snapshot = users
+                .orderBy("points", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .limit(limit.toLong())
+                .get()
+                .await()
+
+            snapshot.documents.mapNotNull { document ->
+                document.toObject(AppUser::class.java)
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 }
