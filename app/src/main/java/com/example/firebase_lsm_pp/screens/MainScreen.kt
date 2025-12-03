@@ -26,7 +26,7 @@ fun MainScreen(
                 val bottomNavItems = listOf(
                     BottomNavItem("Home", Routes.Home.route, Icons.Default.Home),
                     BottomNavItem("Leaderboard", Routes.Leaderboard.route, Icons.Default.Star),
-                    BottomNavItem("Dictionary", Routes.Dictionary.route, Icons.Default.List),
+                    BottomNavItem("Dictionary", Routes.Dictionary.route, Icons.Default.ThumbUp),
                     BottomNavItem("User", Routes.User.route, Icons.Default.Person)
                 )
 
