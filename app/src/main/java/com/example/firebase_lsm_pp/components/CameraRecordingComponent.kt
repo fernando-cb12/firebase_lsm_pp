@@ -150,35 +150,40 @@ fun CameraContent(
             
             val outputOptions = FileOutputOptions.Builder(videoFile).build()
             
-            recording = cameraController.startRecording(
-                outputOptions,
-                AudioConfig.create(true),
-                ContextCompat.getMainExecutor(context)
-            ) { event ->
-                if (event is VideoRecordEvent.Finalize) {
-                    if (!event.hasError()) {
-                        recordedVideoFile = videoFile
-                        onVideoSaved(videoFile)
-                    } else {
-                        recording?.close()
-                        recording = null
-                        Toast.makeText(context, "Error al grabar", Toast.LENGTH_SHORT).show()
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                recording = cameraController.startRecording(
+                    outputOptions,
+                    AudioConfig.create(true),
+                    ContextCompat.getMainExecutor(context)
+                ) { event ->
+                    if (event is VideoRecordEvent.Finalize) {
+                        if (!event.hasError()) {
+                            recordedVideoFile = videoFile
+                            onVideoSaved(videoFile)
+                        } else {
+                            recording?.close()
+                            recording = null
+                            Toast.makeText(context, "Error al grabar", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
-            }
-            isRecording = true
+                isRecording = true
 
-            // Timer de 5 segundos
-            for (i in 0..5) {
-                recordingTime = i
-                if (i < 5) delay(1000)
+                // Timer de 5 segundos
+                for (i in 0..5) {
+                    recordingTime = i
+                    if (i < 5) delay(1000)
+                }
+                
+                // Detener grabación
+                recording?.stop()
+                recording = null
+                isRecording = false
+                recordingState = RecordingState.Finished
+            } else {
+                Toast.makeText(context, "Permiso de audio requerido", Toast.LENGTH_SHORT).show()
+                recordingState = RecordingState.Idle
             }
-            
-            // Detener grabación
-            recording?.stop()
-            recording = null
-            isRecording = false
-            recordingState = RecordingState.Finished
         }
     }
 
