@@ -302,23 +302,15 @@ fun LessonDetailScreen(
                                             if (!answerConfirmed) {
                                                 selectedOption = index
                                             }
-                                        }
-                                        .then(
-                                            if (answerConfirmed && selectedOption == index) {
-                                                Modifier.background(
-                                                    when {
-                                                        isCorrect -> Color(0xFF4CAF50).copy(alpha = 0.3f)
-                                                        else -> MaterialTheme.colorScheme.error.copy(alpha = 0.3f)
-                                                    },
-                                                    RoundedCornerShape(12.dp)
-                                                )
-                                            } else {
-                                                Modifier
-                                            }
-                                        ),
+                                        },
                                     shape = RoundedCornerShape(12.dp),
                                     colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.surface
+                                        containerColor = when {
+                                            answerConfirmed && isSelected && isCorrect -> Color(0xFF4CAF50).copy(alpha = 0.3f) // verde correcto
+                                            answerConfirmed && isSelected && !isCorrect -> MaterialTheme.colorScheme.error.copy(alpha = 0.3f) // rojo incorrecto
+                                            isSelected -> AppAccent.copy(alpha = 0.3f) // seleccionada antes de confirmar
+                                            else -> MaterialTheme.colorScheme.surface // sin seleccionar
+                                        }
                                     )
                                 ) {
                                     Row(
@@ -329,9 +321,9 @@ fun LessonDetailScreen(
                                     ) {
                                         Text(
                                             text = when (index) {
-                                                0 -> "A"
-                                                1 -> "B"
-                                                2 -> "C"
+                                                0 -> ""
+                                                1 -> ""
+                                                2 -> ""
                                                 else -> ""
                                             },
                                             style = MaterialTheme.typography.titleLarge,
@@ -346,13 +338,8 @@ fun LessonDetailScreen(
                                             modifier = Modifier.weight(1f)
                                         )
 
-
                                         if (!answerConfirmed && option.video != null) {
-                                            IconButton(
-                                                onClick = {
-                                                    showVideoDialog = option.video
-                                                }
-                                            ) {
+                                            IconButton(onClick = { showVideoDialog = option.video }) {
                                                 Icon(
                                                     imageVector = Icons.Default.PlayArrow,
                                                     contentDescription = "Ver video",
@@ -363,23 +350,16 @@ fun LessonDetailScreen(
 
                                         if (answerConfirmed && isSelected) {
                                             Icon(
-                                                imageVector = if (isCorrect) {
-                                                    Icons.Default.CheckCircle
-                                                } else {
-                                                    Icons.Default.Close
-                                                },
+                                                imageVector = if (isCorrect) Icons.Default.CheckCircle else Icons.Default.Close,
                                                 contentDescription = null,
-                                                tint = if (isCorrect) {
-                                                    Color(0xFF4CAF50)
-                                                } else {
-                                                    MaterialTheme.colorScheme.error
-                                                },
+                                                tint = if (isCorrect) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error,
                                                 modifier = Modifier.size(24.dp)
                                             )
                                         }
                                     }
                                 }
                             }
+
 
                             // Confirm Button
                             if (selectedOption != null && !answerConfirmed) {
@@ -492,11 +472,13 @@ fun VideoThumbnailCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color.DarkGray // o el color que quieras
         )
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.DarkGray), // esto asegura el fondo
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -508,16 +490,16 @@ fun VideoThumbnailCard(
             Text(
                 text = optionLabel,
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.Black,
+                color = Color.White,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(8.dp)
             )
         }
     }
-}
 
-@Composable
+}
+    @Composable
 fun VideoPlayer(videoUrl: String) {
     val context = LocalContext.current
 

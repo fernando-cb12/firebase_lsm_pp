@@ -1,6 +1,7 @@
 package com.example.firebase_lsm_pp.screens
 
 import android.R.attr.enabled
+import android.R.attr.text
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -64,15 +65,14 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.Center
         ) {
             // Logo at the top
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Logo placeholder - using text with accent color
             Image(
                 painter = painterResource(R.drawable.logo),
                 contentDescription = "Logo",
                 modifier = Modifier
-                    .size(220.dp)
-                    .background(Color.Red) // SOLO PARA PRUEBA
+                    .size(260.dp)
             )
 
             Text(

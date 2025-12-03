@@ -59,13 +59,13 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center
         ) {
             // Logo at the top
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Image(
-                painter = painterResource(id = R.drawable.logo), // asegúrate que sea logo.png
+                painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Logo",
                 modifier = Modifier
-                    .size(220.dp)       // ajusta si lo quieres más chico/grande
+                    .size(260.dp)
                     .padding(bottom = 12.dp)
             )
 
