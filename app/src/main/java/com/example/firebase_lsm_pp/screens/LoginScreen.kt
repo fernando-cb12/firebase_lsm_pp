@@ -65,22 +65,16 @@ fun LoginScreen(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Logo",
                 modifier = Modifier
-                    .size(260.dp)
+                    .size(180.dp)
                     .padding(bottom = 12.dp)
             )
 
             Text(
-                text = "Sign Language",
+                text = "Inclusio",
                 style = MaterialTheme.typography.headlineLarge,
                 color = AppAccent,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 4.dp)
-            )
-            Text(
-                text = "Learning App",
-                style = MaterialTheme.typography.titleMedium,
-                color = AppTextPrimary.copy(alpha = 0.7f),
-                modifier = Modifier.padding(bottom = 48.dp)
             )
 
             // Email field
