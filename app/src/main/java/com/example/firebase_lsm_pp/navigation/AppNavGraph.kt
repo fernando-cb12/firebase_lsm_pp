@@ -100,7 +100,7 @@ fun AppNavGraph() {
         /** USER */
         composable(Routes.User.route) {
             MainScreen(navController = navController) {
-                UserScreen()
+                UserScreen(navController = navController)
             }
         }
 
