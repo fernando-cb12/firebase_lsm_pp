@@ -167,8 +167,8 @@ fun LessonCard(
                 contentScale = ContentScale.Crop
             )
 
-            // 🟢 BADGE DE EXPERIENCIA (SOLO UI)
-            if (lesson.exp > 0) {
+            // 🟢 BADGE DE PUNTOS (SOLO UI)
+            if (lesson.points > 0) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -180,7 +180,7 @@ fun LessonCard(
                         .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = "+${lesson.exp} XP",
+                        text = "+${lesson.points} Puntos",
                         color = Color.White,
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold

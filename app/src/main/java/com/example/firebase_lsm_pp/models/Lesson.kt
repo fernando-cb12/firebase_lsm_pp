@@ -25,5 +25,5 @@ data class Lesson(
     val thumbnail: String = "",
     val lessonVideos: List<LessonVideo> = emptyList(),
     val question: LessonQuestion = LessonQuestion(),
-    val exp: Int = 0
+    val points: Int = 0
 )
