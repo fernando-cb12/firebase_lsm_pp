@@ -36,6 +36,9 @@ import com.example.firebase_lsm_pp.models.LessonQuestion
 import com.example.firebase_lsm_pp.models.LessonVideo
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.launch
+import com.example.firebase_lsm_pp.auth.AuthRepository
+import com.example.firebase_lsm_pp.auth.FirestoreUserService
 
 @Composable
 fun LessonDetailScreen(
@@ -49,8 +52,12 @@ fun LessonDetailScreen(
     var showVideoDialog by remember { mutableStateOf<String?>(null) }
     var showResultDialog by remember { mutableStateOf<Boolean?>(null) }
     var answerConfirmed by remember { mutableStateOf(false) }
+    var pointsAwarded by remember { mutableStateOf(false) }
 
     val lessonService = remember { FirestoreLessonService() }
+    val authRepo = remember { AuthRepository() }
+    val userService = remember { FirestoreUserService() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(lessonTitle) {
         loading = true
@@ -118,7 +125,7 @@ fun LessonDetailScreen(
                 thumbnail = doc.getString("thumbnail") ?: "",
                 lessonVideos = lessonVideos,
                 question = question,
-                exp = (doc.getLong("exp") ?: 0).toInt()
+                points = (doc.getLong("points") ?: doc.getLong("exp") ?: 0).toInt()
             )
 
 
@@ -367,8 +374,29 @@ fun LessonDetailScreen(
                                 Button(
                                     onClick = {
                                         answerConfirmed = true
-                                        val isCorrect = lesson?.question?.options?.get(selectedOption!!)?.isCorrect == true
+                                        val currentLesson = lesson
+                                        val isCorrect = currentLesson?.question?.options?.get(selectedOption!!)?.isCorrect == true
                                         showResultDialog = isCorrect
+                                        
+                                        // Award points if answer is correct and points haven't been awarded yet
+                                        if (isCorrect && !pointsAwarded && currentLesson != null && currentLesson.points > 0) {
+                                            pointsAwarded = true
+                                            val lessonPoints = currentLesson.points
+                                            val currentUser = authRepo.getCurrentUser()
+                                            currentUser?.uid?.let { uid ->
+                                                scope.launch {
+                                                    try {
+                                                        val user = userService.getUser(uid)
+                                                        if (user != null) {
+                                                            val newPoints = user.points + lessonPoints
+                                                            userService.updateUser(uid, mapOf("points" to newPoints))
+                                                        }
+                                                    } catch (e: Exception) {
+                                                        // Silently handle error - points award is not critical for UI
+                                                    }
+                                                }
+                                            }
+                                        }
                                     },
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = ButtonDefaults.buttonColors(
