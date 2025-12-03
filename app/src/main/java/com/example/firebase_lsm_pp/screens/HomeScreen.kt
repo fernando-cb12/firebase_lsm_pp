@@ -139,10 +139,9 @@ fun LessonCard(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // Title in upper left corner
+        Box(modifier = Modifier.fillMaxSize()) {
+
+            // 🔹 TÍTULO
             Text(
                 text = lesson.title,
                 style = MaterialTheme.typography.titleMedium,
@@ -155,7 +154,7 @@ fun LessonCard(
                     .padding(16.dp)
             )
 
-            // Image centered and taking almost all the space
+            // 🔹 IMAGEN
             AsyncImage(
                 model = lesson.thumbnail,
                 contentDescription = lesson.title,
@@ -167,6 +166,28 @@ fun LessonCard(
                     .align(Alignment.Center),
                 contentScale = ContentScale.Crop
             )
+
+            // 🟢 BADGE DE EXPERIENCIA (SOLO UI)
+            if (lesson.exp > 0) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(12.dp)
+                        .background(
+                            color = Color(0xFF4CAF50),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = "+${lesson.exp} XP",
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         }
     }
 }
+

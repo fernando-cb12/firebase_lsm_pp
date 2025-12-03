@@ -31,6 +31,11 @@ import com.example.firebase_lsm_pp.ui.theme.AppAccent
 import com.example.firebase_lsm_pp.ui.theme.AppBackground
 import com.example.firebase_lsm_pp.ui.theme.AppButtonColor
 import coil.compose.AsyncImage
+import com.example.firebase_lsm_pp.models.LessonOption
+import com.example.firebase_lsm_pp.models.LessonQuestion
+import com.example.firebase_lsm_pp.models.LessonVideo
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun LessonDetailScreen(
@@ -48,18 +53,82 @@ fun LessonDetailScreen(
     val lessonService = remember { FirestoreLessonService() }
 
     LaunchedEffect(lessonTitle) {
+        loading = true
+        error = null
+
         try {
-            val lessons = lessonService.getAllLessons()
-            lesson = lessons.find { it.title == lessonTitle }
-            if (lesson == null) {
+            val snapshot = FirebaseFirestore.getInstance()
+                .collection("lessons")
+                .whereEqualTo("title", lessonTitle)
+                .get()
+                .await()
+
+            if (snapshot.isEmpty) {
                 error = "Lección no encontrada"
+                loading = false
+                return@LaunchedEffect
             }
-            loading = false
+
+            val doc = snapshot.documents.first()
+
+
+            val lessonVideos = mutableListOf<LessonVideo>()
+
+            doc.data?.forEach { (key, value) ->
+                if (key.startsWith("lesson") && value is Map<*, *>) {
+                    val text = value["text"] as? String ?: ""
+                    val video = value["video"] as? String ?: ""
+
+                    if (video.isNotEmpty()) {
+                        lessonVideos.add(
+                            LessonVideo(
+                                text = text,
+                                video = video
+                            )
+                        )
+                    }
+                }
+            }
+
+
+            val questionMap = doc.get("question") as? Map<*, *>
+            val questionText = questionMap?.get("text") as? String ?: ""
+
+            val optionsArray =
+                questionMap?.get("options") as? List<Map<*, *>> ?: emptyList()
+
+            val questionOptions = optionsArray.map { optionMap ->
+                LessonOption(
+                    isCorrect = optionMap["isCorrect"] as? Boolean ?: false,
+                    optionA = optionMap["optionA"] as? String,
+                    optionB = optionMap["optionB"] as? String,
+                    optionC = optionMap["optionC"] as? String,
+                    video = optionMap["video"] as? String
+                )
+            }
+
+            val question = LessonQuestion(
+                text = questionText,
+                options = questionOptions
+            )
+
+            lesson = Lesson(
+                title = doc.getString("title") ?: "",
+                description = doc.getString("description") ?: "",
+                thumbnail = doc.getString("thumbnail") ?: "",
+                lessonVideos = lessonVideos,
+                question = question,
+                exp = (doc.getLong("exp") ?: 0).toInt()
+            )
+
+
         } catch (e: Exception) {
             error = "Error al cargar la lección: ${e.message}"
-            loading = false
         }
+
+        loading = false
     }
+
 
     Box(
         modifier = Modifier
@@ -156,12 +225,11 @@ fun LessonDetailScreen(
                         Text(
                             text = lesson?.description ?: "",
                             style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Black,
+                            color = Color.White ,
                             lineHeight = androidx.compose.ui.unit.TextUnit(24f, androidx.compose.ui.unit.TextUnitType.Sp)
                         )
+                        if (lesson?.lessonVideos?.isNotEmpty() == true) {
 
-                        // Video Carousel
-                        if (lesson?.question?.options?.isNotEmpty() == true) {
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Text(
@@ -175,22 +243,17 @@ fun LessonDetailScreen(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 contentPadding = PaddingValues(vertical = 8.dp)
                             ) {
-                                itemsIndexed(lesson?.question?.options ?: emptyList()) { index, option ->
-                                    val videoUrl = option.video
-                                    if (!videoUrl.isNullOrEmpty()) {
-                                        VideoThumbnailCard(
-                                            videoUrl = videoUrl,
-                                            optionLabel = when (index) {
-                                                0 -> "Opción A"
-                                                1 -> "Opción B"
-                                                2 -> "Opción C"
-                                                else -> "Video ${index + 1}"
-                                            },
-                                            onClick = {
-                                                showVideoDialog = videoUrl
-                                            }
-                                        )
-                                    }
+                                itemsIndexed(lesson!!.lessonVideos) { index, video ->
+
+                                    VideoThumbnailCard(
+                                        videoUrl = video.video,
+                                        optionLabel = video.text.ifEmpty {
+                                            "Video ${index + 1}"
+                                        },
+                                        onClick = {
+                                            showVideoDialog = video.video
+                                        }
+                                    )
                                 }
                             }
                         }
@@ -220,7 +283,7 @@ fun LessonDetailScreen(
                             Text(
                                 text = lesson?.question?.text ?: "",
                                 style = MaterialTheme.typography.titleMedium,
-                                color = Color.Black,
+                                color = Color.White,
                                 fontWeight = FontWeight.SemiBold
                             )
 
@@ -283,7 +346,7 @@ fun LessonDetailScreen(
                                             modifier = Modifier.weight(1f)
                                         )
 
-                                        // Play video button
+
                                         if (!answerConfirmed && option.video != null) {
                                             IconButton(
                                                 onClick = {
@@ -298,7 +361,6 @@ fun LessonDetailScreen(
                                             }
                                         }
 
-                                        // Result icon
                                         if (answerConfirmed && isSelected) {
                                             Icon(
                                                 imageVector = if (isCorrect) {

@@ -1,5 +1,6 @@
 package com.example.firebase_lsm_pp.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -30,6 +32,9 @@ import com.example.firebase_lsm_pp.ui.theme.AppTextPrimary
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import com.example.firebase_lsm_pp.R
+
+
 
 @Composable
 fun LoginScreen(
@@ -56,12 +61,14 @@ fun LoginScreen(
             // Logo at the top
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Logo placeholder - using text with accent color
-            Text(
-                text = "✋",
-                fontSize = 64.sp,
-                modifier = Modifier.padding(bottom = 8.dp)
+            Image(
+                painter = painterResource(id = R.drawable.logo), // asegúrate que sea logo.png
+                contentDescription = "Logo",
+                modifier = Modifier
+                    .size(220.dp)       // ajusta si lo quieres más chico/grande
+                    .padding(bottom = 12.dp)
             )
+
             Text(
                 text = "Sign Language",
                 style = MaterialTheme.typography.headlineLarge,
