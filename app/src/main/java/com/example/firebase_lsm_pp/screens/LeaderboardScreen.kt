@@ -1,10 +1,10 @@
 package com.example.firebase_lsm_pp.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
@@ -12,7 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,6 +23,7 @@ import com.example.firebase_lsm_pp.ui.theme.AppBackground
 import com.example.firebase_lsm_pp.ui.theme.AppButtonColor
 import com.example.firebase_lsm_pp.ui.theme.AppTextPrimary
 import com.example.firebase_lsm_pp.ui.theme.AppYellow
+
 
 @Composable
 fun LeaderboardScreen() {
@@ -39,15 +39,18 @@ fun LeaderboardScreen() {
         try {
             // Get top users
             topUsers = userService.getTopUsers(limit = 20)
+            Log.d("LeaderboardScreen", "Loaded ${topUsers.size} users")
 
             // Get current user
             val currentUserUid = authRepo.getCurrentUser()?.uid
             if (currentUserUid != null) {
                 currentUser = userService.getUser(currentUserUid)
+                Log.d("LeaderboardScreen", "Current user loaded: ${currentUser != null}")
             }
 
             loading = false
         } catch (e: Exception) {
+            Log.e("LeaderboardScreen", "Error loading leaderboard", e)
             error = "Error al cargar el leaderboard: ${e.message}"
             loading = false
         }
@@ -73,7 +76,7 @@ fun LeaderboardScreen() {
             when {
                 loading -> {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.weight(1f),
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(color = AppAccent)
@@ -81,7 +84,7 @@ fun LeaderboardScreen() {
                 }
                 error != null -> {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.weight(1f),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -91,29 +94,51 @@ fun LeaderboardScreen() {
                         )
                     }
                 }
+
                 else -> {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        itemsIndexed(topUsers) { index, user ->
-                            LeaderboardItem(
-                                user = user,
-                                rank = index + 1,
-                                isCurrentUser = currentUser?.uid == user.uid
+                    if (topUsers.isEmpty()) {
+                        Box(
+                            modifier = Modifier.weight(1f),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No hay usuarios en el leaderboard",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = AppTextPrimary.copy(alpha = 0.7f)
                             )
                         }
-                    }
+                    } else {
+                        Box(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(
+                                    start = 16.dp,
+                                    top = 8.dp,
+                                    end = 16.dp,
+                                    bottom = if (currentUser != null) 180.dp else 16.dp
+                                ),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                itemsIndexed(topUsers) { index, user ->
+                                    LeaderboardItem(
+                                        user = user,
+                                        isCurrentUser = currentUser?.uid == user.uid
+                                    )
+                                }
+                            }
 
-                    // Current User Card at the bottom
-                    currentUser?.let { user ->
-                        CurrentUserCard(
-                            user = user,
-                            rank = topUsers.indexOfFirst { it.uid == user.uid } + 1
-                        )
+                            // Current User Card at the bottom
+                            currentUser?.let { user ->
+                                CurrentUserCard(
+                                    user = user,
+                                    modifier = Modifier
+                                        .align(Alignment.BottomCenter)
+                                        .fillMaxWidth()
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -124,7 +149,6 @@ fun LeaderboardScreen() {
 @Composable
 fun LeaderboardItem(
     user: AppUser,
-    rank: Int,
     isCurrentUser: Boolean
 ) {
     Card(
@@ -136,12 +160,10 @@ fun LeaderboardItem(
             containerColor = if (isCurrentUser) {
                 AppButtonColor.copy(alpha = 0.3f)
             } else {
-                MaterialTheme.colorScheme.surface
+                androidx.compose.ui.graphics.Color(0xFF3A4550) // Dark card background
             }
         ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (rank <= 3) 4.dp else 2.dp
-        )
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -150,50 +172,23 @@ fun LeaderboardItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Rank and Avatar
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            // Username
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
-                // Rank Badge
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(
-                            when (rank) {
-                                1 -> AppYellow
-                                2 -> androidx.compose.ui.graphics.Color(0xFFC0C0C0) // Silver
-                                3 -> androidx.compose.ui.graphics.Color(0xFFCD7F32) // Bronze
-                                else -> AppButtonColor.copy(alpha = 0.5f)
-                            }
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
+                Text(
+                    text = user.username.ifEmpty { user.name.ifEmpty { "Usuario" } },
+                    style = MaterialTheme.typography.titleMedium,
+                    color = AppTextPrimary,
+                    fontWeight = FontWeight.SemiBold
+                )
+                if (user.name.isNotEmpty() && user.name != user.username) {
                     Text(
-                        text = "#$rank",
-                        color = if (rank <= 3) androidx.compose.ui.graphics.Color.Black else AppTextPrimary,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
+                        text = user.name,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = AppTextPrimary.copy(alpha = 0.7f),
+                        fontSize = 12.sp
                     )
-                }
-
-                // Username
-                Column {
-                    Text(
-                        text = user.username.ifEmpty { user.name.ifEmpty { "Usuario" } },
-                        style = MaterialTheme.typography.titleMedium,
-                        color = AppTextPrimary,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    if (user.name.isNotEmpty() && user.name != user.username) {
-                        Text(
-                            text = user.name,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = AppTextPrimary.copy(alpha = 0.7f),
-                            fontSize = 12.sp
-                        )
-                    }
                 }
             }
 
@@ -247,11 +242,10 @@ fun LeaderboardItem(
 @Composable
 fun CurrentUserCard(
     user: AppUser,
-    rank: Int
+    modifier: Modifier = Modifier
 ) {
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .padding(16.dp),
         shape = RoundedCornerShape(16.dp),
         color = AppButtonColor.copy(alpha = 0.2f),
@@ -263,7 +257,7 @@ fun CurrentUserCard(
                 .padding(20.dp)
         ) {
             Text(
-                text = "Tu posición",
+                text = "Tu estadística",
                 style = MaterialTheme.typography.titleMedium,
                 color = AppAccent,
                 fontWeight = FontWeight.Bold,
@@ -272,27 +266,9 @@ fun CurrentUserCard(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Rank
-                Column(
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    Text(
-                        text = "Rango",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = AppTextPrimary.copy(alpha = 0.7f),
-                        fontSize = 12.sp
-                    )
-                    Text(
-                        text = if (rank > 0) "#$rank" else "N/A",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = AppAccent,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
                 // Points
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -313,7 +289,7 @@ fun CurrentUserCard(
 
                 // Streak
                 Column(
-                    horizontalAlignment = Alignment.End
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = "Racha",

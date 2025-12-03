@@ -1,6 +1,8 @@
 package com.example.firebase_lsm_pp.auth
 
+import android.util.Log
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
 import java.util.Calendar
@@ -82,22 +84,74 @@ class FirestoreUserService {
     }
 
     /**
+     * Converts a Firestore document to AppUser, handling Timestamp to Long conversion
+     */
+    private fun documentToAppUser(document: com.google.firebase.firestore.QueryDocumentSnapshot): AppUser? {
+        return try {
+            val data = document.data
+            AppUser(
+                uid = data["uid"] as? String ?: document.id,
+                name = data["name"] as? String ?: "",
+                username = data["username"] as? String ?: "",
+                points = (data["points"] as? Number)?.toInt() ?: 0,
+                streak = (data["streak"] as? Number)?.toInt() ?: 0,
+                lastLogin = when (val lastLogin = data["lastLogin"]) {
+                    is com.google.firebase.Timestamp -> lastLogin.toDate().time
+                    is Long -> lastLogin
+                    is Number -> lastLogin.toLong()
+                    else -> null
+                },
+                createdAt = when (val createdAt = data["createdAt"]) {
+                    is com.google.firebase.Timestamp -> createdAt.toDate().time
+                    is Long -> createdAt
+                    is Number -> createdAt.toLong()
+                    else -> System.currentTimeMillis()
+                }
+            )
+        } catch (e: Exception) {
+            Log.e("FirestoreUserService", "Error converting document to AppUser: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
      * Gets top users sorted by points (descending order)
      * @param limit Maximum number of users to return (default: 20)
      */
     suspend fun getTopUsers(limit: Int = 20): List<AppUser> {
         return try {
+            Log.d("FirestoreUserService", "Fetching top users with limit: $limit")
             val snapshot = users
                 .orderBy("points", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .limit(limit.toLong())
                 .get()
                 .await()
 
-            snapshot.documents.mapNotNull { document ->
-                document.toObject(AppUser::class.java)
+            val userList = snapshot.documents.mapNotNull { document ->
+                documentToAppUser(document as QueryDocumentSnapshot)
             }
+            Log.d("FirestoreUserService", "Successfully fetched ${userList.size} users")
+            userList
         } catch (e: Exception) {
-            emptyList()
+            Log.e("FirestoreUserService", "Error fetching top users: ${e.message}", e)
+            // If orderBy fails (e.g., missing index), try without ordering
+            try {
+                Log.d("FirestoreUserService", "Trying to fetch users without ordering...")
+                val snapshot = users
+                    .limit(limit.toLong())
+                    .get()
+                    .await()
+                
+                val userList = snapshot.documents.mapNotNull { document ->
+                    documentToAppUser(document as QueryDocumentSnapshot)
+                }.sortedByDescending { it.points }
+                
+                Log.d("FirestoreUserService", "Fetched ${userList.size} users without ordering")
+                userList
+            } catch (e2: Exception) {
+                Log.e("FirestoreUserService", "Error fetching users without ordering: ${e2.message}", e2)
+                emptyList()
+            }
         }
     }
 }
