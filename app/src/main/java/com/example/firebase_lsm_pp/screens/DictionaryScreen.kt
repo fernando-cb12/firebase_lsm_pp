@@ -32,6 +32,7 @@ import com.example.firebase_lsm_pp.ui.theme.AppAccent
 import com.example.firebase_lsm_pp.ui.theme.AppBackground
 import com.example.firebase_lsm_pp.ui.theme.AppButtonColor
 import com.example.firebase_lsm_pp.ui.theme.AppMainText
+import com.example.firebase_lsm_pp.components.CameraRecordingDialog
 
 @Composable
 fun DictionaryScreen() {
@@ -236,6 +237,14 @@ fun SignDetailDialog(
     sign: Sign,
     onDismiss: () -> Unit
 ) {
+    var showCamera by remember { mutableStateOf(false) }
+
+    if (showCamera) {
+        CameraRecordingDialog(
+            onDismiss = { showCamera = false }
+        )
+    }
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
@@ -329,7 +338,7 @@ fun SignDetailDialog(
                 ) {
                     // Botón Probar
                     Button(
-                        onClick = { /* TODO: Implementar la función de prueba */ },
+                        onClick = { showCamera = true },
                         modifier = Modifier
                             .weight(1f)
                             .height(50.dp),
