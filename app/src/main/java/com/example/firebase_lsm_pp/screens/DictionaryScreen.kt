@@ -320,24 +320,50 @@ fun SignDetailDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Botón "Entendido"
-                Button(
-                    onClick = onDismiss,
+                // Botones de Probar y Cerrar
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp)
                         .padding(horizontal = 24.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = AppButtonColor
-                    )
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = "Entendido",
-                        color = AppMainText,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    // Botón Probar
+                    Button(
+                        onClick = { /* TODO: Implementar la función de prueba */ },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = AppButtonColor
+                        )
+                    ) {
+                        Text(
+                            text = "Probar",
+                            color = AppMainText,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    // Botón Cerrar
+                    Button(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = AppButtonColor
+                        )
+                    ) {
+                        Text(
+                            text = "Cerrar",
+                            color = AppMainText,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
             }
