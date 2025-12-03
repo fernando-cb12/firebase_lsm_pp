@@ -4,7 +4,8 @@ data class LessonOption(
     val isCorrect: Boolean = false,
     val optionA: String? = null,
     val optionB: String? = null,
-    val optionC: String? = null
+    val optionC: String? = null,
+    val video: String? = null
 )
 
 data class LessonQuestion(
@@ -14,6 +15,7 @@ data class LessonQuestion(
 
 data class Lesson(
     val title: String = "",
+    val description: String = "",
     val thumbnail: String = "",
     val video: String = "",
     val question: LessonQuestion = LessonQuestion()
