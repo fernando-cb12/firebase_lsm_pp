@@ -1,13 +1,30 @@
 package com.example.firebase_lsm_pp.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.firebase_lsm_pp.auth.AuthViewModel
+import com.example.firebase_lsm_pp.ui.theme.AppAccent
+import com.example.firebase_lsm_pp.ui.theme.AppBackground
+import com.example.firebase_lsm_pp.ui.theme.AppButtonColor
+import com.example.firebase_lsm_pp.ui.theme.AppTextPrimary
 import kotlinx.coroutines.launch
 
 @Composable
@@ -26,87 +43,273 @@ fun RegisterScreen(
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf("") }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp),
-        verticalArrangement = Arrangement.Center
+            .background(AppBackground)
     ) {
-
-        Text("Crear cuenta", style = MaterialTheme.typography.headlineSmall)
-
-        Spacer(Modifier.height(12.dp))
-
-        TextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Nombre completo") },
-            singleLine = true
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        TextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Nombre de usuario") },
-            singleLine = true
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        TextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Correo") },
-            singleLine = true
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        TextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Contraseña") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation()
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                loading = true
-                error = ""
-
-                scope.launch {
-                    val success = authViewModel.registerWithEmail(
-                        name = name,
-                        username = username,
-                        email = email,
-                        password = password
-                    )
-
-                    loading = false
-
-                    if (success) onRegisterSuccess()
-                    else error = "No se pudo crear tu cuenta. Revisa tus datos."
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Text(if (loading) "Creando..." else "Crear cuenta")
-        }
+            // Logo at the top
+            Spacer(modifier = Modifier.height(32.dp))
 
-        if (error.isNotEmpty()) {
-            Spacer(Modifier.height(8.dp))
-            Text(error, color = Color.Red)
-        }
+            // Logo placeholder - using text with accent color
+            Text(
+                text = "✋",
+                fontSize = 64.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                text = "Sign Language",
+                style = MaterialTheme.typography.headlineLarge,
+                color = AppAccent,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                text = "Learning App",
+                style = MaterialTheme.typography.titleMedium,
+                color = AppTextPrimary.copy(alpha = 0.7f),
+                modifier = Modifier.padding(bottom = 48.dp)
+            )
 
-        Spacer(Modifier.height(12.dp))
+            // Name field
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = {
+                    Text(
+                        "Nombre completo",
+                        color = AppTextPrimary.copy(alpha = 0.7f)
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Name",
+                        tint = AppAccent
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = AppTextPrimary,
+                    unfocusedTextColor = AppTextPrimary,
+                    focusedBorderColor = AppAccent,
+                    unfocusedBorderColor = AppTextPrimary.copy(alpha = 0.3f),
+                    focusedLabelColor = AppAccent,
+                    unfocusedLabelColor = AppTextPrimary.copy(alpha = 0.7f)
+                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                singleLine = true
+            )
 
-        TextButton(onClick = onLoginClick) {
-            Text("¿Ya tienes cuenta? Inicia sesión")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Username field
+            OutlinedTextField(
+                value = username,
+                onValueChange = { username = it },
+                label = {
+                    Text(
+                        "Nombre de usuario",
+                        color = AppTextPrimary.copy(alpha = 0.7f)
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.AccountCircle,
+                        contentDescription = "Username",
+                        tint = AppAccent
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = AppTextPrimary,
+                    unfocusedTextColor = AppTextPrimary,
+                    focusedBorderColor = AppAccent,
+                    unfocusedBorderColor = AppTextPrimary.copy(alpha = 0.3f),
+                    focusedLabelColor = AppAccent,
+                    unfocusedLabelColor = AppTextPrimary.copy(alpha = 0.7f)
+                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Email field
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = {
+                    Text(
+                        "Correo",
+                        color = AppTextPrimary.copy(alpha = 0.7f)
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Email,
+                        contentDescription = "Email",
+                        tint = AppAccent
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = AppTextPrimary,
+                    unfocusedTextColor = AppTextPrimary,
+                    focusedBorderColor = AppAccent,
+                    unfocusedBorderColor = AppTextPrimary.copy(alpha = 0.3f),
+                    focusedLabelColor = AppAccent,
+                    unfocusedLabelColor = AppTextPrimary.copy(alpha = 0.7f)
+                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Password field
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = {
+                    Text(
+                        "Contraseña",
+                        color = AppTextPrimary.copy(alpha = 0.7f)
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = "Password",
+                        tint = AppAccent
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                shape = RoundedCornerShape(12.dp),
+                visualTransformation = PasswordVisualTransformation(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = AppTextPrimary,
+                    unfocusedTextColor = AppTextPrimary,
+                    focusedBorderColor = AppAccent,
+                    unfocusedBorderColor = AppTextPrimary.copy(alpha = 0.3f),
+                    focusedLabelColor = AppAccent,
+                    unfocusedLabelColor = AppTextPrimary.copy(alpha = 0.7f)
+                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Error message
+            if (error.isNotEmpty()) {
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    textAlign = TextAlign.Start
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Register Button
+            Button(
+                onClick = {
+                    loading = true
+                    error = ""
+
+                    scope.launch {
+                        val success = authViewModel.registerWithEmail(
+                            name = name,
+                            username = username,
+                            email = email,
+                            password = password
+                        )
+
+                        loading = false
+
+                        if (success) onRegisterSuccess()
+                        else error = "No se pudo crear tu cuenta. Revisa tus datos."
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .padding(horizontal = 8.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = AppButtonColor,
+                    contentColor = Color.White,
+                    disabledContainerColor = AppButtonColor.copy(alpha = 0.5f),
+                    disabledContentColor = Color.White.copy(alpha = 0.7f)
+                ),
+                enabled = !loading && name.isNotBlank() && username.isNotBlank() && email.isNotBlank() && password.isNotBlank()
+            ) {
+                if (loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        text = "Crear cuenta",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Sign in text and button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "¿Ya tienes cuenta? ",
+                    color = AppTextPrimary.copy(alpha = 0.7f),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                TextButton(
+                    onClick = onLoginClick,
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = "Inicia sesión",
+                        color = AppAccent,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
