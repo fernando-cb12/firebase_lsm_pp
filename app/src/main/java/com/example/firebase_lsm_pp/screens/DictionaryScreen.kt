@@ -5,11 +5,12 @@ import android.view.ViewGroup
 import android.widget.VideoView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -17,6 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -26,7 +28,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import com.example.firebase_lsm_pp.models.Sign
 import com.example.firebase_lsm_pp.services.FirestoreSignService
-import com.example.firebase_lsm_pp.ui.theme.Teal
+import com.example.firebase_lsm_pp.ui.theme.AppAccent
+import com.example.firebase_lsm_pp.ui.theme.AppBackground
+import com.example.firebase_lsm_pp.ui.theme.AppButtonColor
+import com.example.firebase_lsm_pp.ui.theme.AppMainText
 
 @Composable
 fun DictionaryScreen() {
@@ -77,7 +82,7 @@ fun DictionaryScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(AppBackground)
             .padding(horizontal = 16.dp)
     ) {
         // Título
@@ -88,7 +93,7 @@ fun DictionaryScreen() {
                 fontWeight = FontWeight.Bold
             ),
             modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
-            color = MaterialTheme.colorScheme.onBackground
+            color = AppMainText
         )
 
         // Barra de búsqueda
@@ -101,34 +106,37 @@ fun DictionaryScreen() {
             placeholder = {
                 Text(
                     text = "Buscar señas...",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color.Gray
                 )
             },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Buscar",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = Color.Gray
                 )
             },
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.outline,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
                 focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White
+                unfocusedContainerColor = Color.White,
+                cursorColor = AppButtonColor,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black
             ),
             singleLine = true
         )
 
         // Filtros de categoría
-        Row(
+        LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            categories.forEach { category ->
+            items(categories) { category ->
                 FilterChip(
                     selected = selectedCategory == category,
                     onClick = { selectedCategory = category },
@@ -139,10 +147,10 @@ fun DictionaryScreen() {
                         )
                     },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Teal,
-                        selectedLabelColor = Color.White,
-                        containerColor = Color.White,
-                        labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        selectedContainerColor = AppButtonColor,
+                        selectedLabelColor = AppMainText,
+                        containerColor = AppAccent,
+                        labelColor = Color.Black
                     ),
                     shape = RoundedCornerShape(20.dp)
                 )
@@ -168,7 +176,7 @@ fun DictionaryScreen() {
                     else
                         "No hay señas disponibles",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = AppMainText
                 )
             }
         } else {
@@ -207,8 +215,8 @@ fun SignButton(sign: Sign, onClick: () -> Unit) {
             .aspectRatio(1f),
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFF5F5F5),
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            containerColor = AppAccent,
+            contentColor = Color.Black
         ),
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = 0.dp
@@ -217,7 +225,7 @@ fun SignButton(sign: Sign, onClick: () -> Unit) {
         Text(
             text = sign.word,
             style = MaterialTheme.typography.bodyMedium,
-            color = Color(0xFF424242),
+            color = Color.Black,
             fontSize = 14.sp
         )
     }
@@ -235,7 +243,7 @@ fun SignDetailDialog(
                 .padding(16.dp),
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color.White
+                containerColor = AppBackground
             )
         ) {
             Column(
@@ -257,7 +265,7 @@ fun SignDetailDialog(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Cerrar",
-                            tint = Color(0xFF424242),
+                            tint = AppMainText,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -277,12 +285,12 @@ fun SignDetailDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(250.dp)
-                            .background(Color(0xFFF5F5F5), RoundedCornerShape(12.dp)),
+                            .background(AppAccent, RoundedCornerShape(12.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "Video no disponible",
-                            color = Color(0xFF9E9E9E)
+                            color = Color.Black
                         )
                     }
                 }
@@ -296,7 +304,7 @@ fun SignDetailDialog(
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold
                     ),
-                    color = Color(0xFF424242),
+                    color = AppMainText,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
 
@@ -306,7 +314,7 @@ fun SignDetailDialog(
                 Text(
                     text = sign.description,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Color(0xFF424242),
+                    color = AppMainText,
                     modifier = Modifier.padding(horizontal = 24.dp)
                 )
 
@@ -321,12 +329,12 @@ fun SignDetailDialog(
                         .padding(horizontal = 24.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Teal
+                        containerColor = AppButtonColor
                     )
                 ) {
                     Text(
                         text = "Entendido",
-                        color = Color.White,
+                        color = AppMainText,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
