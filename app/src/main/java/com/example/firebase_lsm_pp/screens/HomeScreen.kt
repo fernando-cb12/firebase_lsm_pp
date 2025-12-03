@@ -3,22 +3,19 @@ package com.example.firebase_lsm_pp.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.firebase_lsm_pp.models.Lesson
 import com.example.firebase_lsm_pp.navigation.Routes
@@ -105,10 +102,8 @@ fun HomeScreen(navController: NavController) {
                     }
                 }
                 else -> {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
+                    LazyColumn(
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
@@ -116,8 +111,7 @@ fun HomeScreen(navController: NavController) {
                             LessonCard(
                                 lesson = lesson,
                                 onClick = {
-                                    // TODO: Navigate to lesson detail screen
-                                    // navController.navigate("lesson/${lesson.id}")
+                                    navController.navigate("lesson/${lesson.title}")
                                 }
                             )
                         }
@@ -136,7 +130,8 @@ fun LessonCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp)
+            .padding(horizontal = 8.dp)
+            .height(200.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -144,65 +139,55 @@ fun LessonCard(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // Thumbnail
-            Box(
+        Box(modifier = Modifier.fillMaxSize()) {
+
+            // 🔹 TÍTULO
+            Text(
+                text = lesson.title,
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(16.dp)
+            )
+
+            // 🔹 IMAGEN
+            AsyncImage(
+                model = lesson.thumbnail,
+                contentDescription = lesson.title,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(140.dp)
-            ) {
-                AsyncImage(
-                    model = lesson.thumbnail,
-                    contentDescription = lesson.title,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
-                    contentScale = ContentScale.Crop
-                )
+                    .fillMaxHeight()
+                    .padding(top = 60.dp, start = 8.dp, end = 8.dp, bottom = 8.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .align(Alignment.Center),
+                contentScale = ContentScale.Crop
+            )
 
-                // Experience badge overlay
-                Surface(
+            // 🟢 BADGE DE EXPERIENCIA (SOLO UI)
+            if (lesson.exp > 0) {
+                Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(8.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    color = AppButtonColor.copy(alpha = 0.9f)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Experience",
-                            tint = androidx.compose.ui.graphics.Color.White,
-                            modifier = Modifier.size(14.dp)
+                        .padding(12.dp)
+                        .background(
+                            color = Color(0xFF4CAF50),
+                            shape = RoundedCornerShape(12.dp)
                         )
-                    }
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = "+${lesson.exp} XP",
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
-            }
-
-            // Title and content
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp)
-                    .weight(1f),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = lesson.title,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = AppTextPrimary,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         }
     }
 }
+
