@@ -1,10 +1,16 @@
 package com.example.firebase_lsm_pp.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
 import com.example.firebase_lsm_pp.auth.AuthViewModel
+import com.example.firebase_lsm_pp.auth.UserData
 import com.example.firebase_lsm_pp.components.shared.GoogleUsernameScreen
 import com.example.firebase_lsm_pp.screens.DictionaryScreen
 import com.example.firebase_lsm_pp.screens.HomeScreen
@@ -14,7 +20,7 @@ import com.example.firebase_lsm_pp.screens.LoginScreen
 import com.example.firebase_lsm_pp.screens.MainScreen
 import com.example.firebase_lsm_pp.screens.RegisterScreen
 import com.example.firebase_lsm_pp.screens.StreakScreen
-import com.example.firebase_lsm_pp.screens.UserScreen
+import com.example.firebase_lsm_pp.screens.ProfileScreen
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 
@@ -99,8 +105,20 @@ fun AppNavGraph() {
 
         /** USER */
         composable(Routes.User.route) {
+            var userData by remember { mutableStateOf<UserData?>(null) }
+            LaunchedEffect(key1 = Unit) {
+                userData = authViewModel.getSignedInUser()
+            }
             MainScreen(navController = navController) {
-                UserScreen()
+                ProfileScreen(
+                    userData = userData,
+                    onSignOut = {
+                        authViewModel.signOut()
+                        navController.navigate(Routes.Login.route) {
+                            popUpTo(Routes.Home.route) { inclusive = true }
+                        }
+                    }
+                )
             }
         }
 

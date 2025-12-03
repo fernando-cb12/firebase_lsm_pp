@@ -75,4 +75,12 @@ class AuthViewModel(
         }
     }
 
+    suspend fun getSignedInUser(): UserData? {
+        return repo.getSignedInUser()
+    }
+
+    fun signOut() {
+        repo.signOut()
+    }
+
 }

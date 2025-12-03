@@ -58,4 +58,19 @@ class AuthRepository(
     suspend fun updateStreakOnLogin(uid: String) {
         userService.updateStreak(uid)
     }
+
+    suspend fun getSignedInUser(): UserData? {
+        val firebaseUser = auth.currentUser ?: return null
+        val appUser = userService.getUser(firebaseUser.uid)
+        return UserData(
+            userId = firebaseUser.uid,
+            name = appUser?.name,
+            username = appUser?.username,
+            profilePictureUrl = firebaseUser.photoUrl?.toString()
+        )
+    }
+
+    fun signOut() {
+        auth.signOut()
+    }
 }
