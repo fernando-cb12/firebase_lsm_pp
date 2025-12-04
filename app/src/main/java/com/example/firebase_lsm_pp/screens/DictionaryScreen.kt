@@ -241,8 +241,7 @@ fun SignDetailDialog(
 
     if (showCamera) {
         CameraRecordingDialog(
-            onDismiss = { showCamera = false },
-            expectedWord = sign.expectedWord
+            onDismiss = { showCamera = false }
         )
     }
 
@@ -266,7 +265,7 @@ fun SignDetailDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp),
-                        horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.End
                 ) {
                     IconButton(
                         onClick = onDismiss,
