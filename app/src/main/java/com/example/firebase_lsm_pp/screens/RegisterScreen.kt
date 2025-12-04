@@ -1,5 +1,8 @@
 package com.example.firebase_lsm_pp.screens
 
+import android.R.attr.enabled
+import android.R.attr.text
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -26,6 +30,8 @@ import com.example.firebase_lsm_pp.ui.theme.AppBackground
 import com.example.firebase_lsm_pp.ui.theme.AppButtonColor
 import com.example.firebase_lsm_pp.ui.theme.AppTextPrimary
 import kotlinx.coroutines.launch
+import com.example.firebase_lsm_pp.R
+
 
 @Composable
 fun RegisterScreen(
@@ -43,6 +49,9 @@ fun RegisterScreen(
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf("") }
 
+    var acceptTerms by remember { mutableStateOf(false) }
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -56,26 +65,22 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.Center
         ) {
             // Logo at the top
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Logo placeholder - using text with accent color
-            Text(
-                text = "✋",
-                fontSize = 64.sp,
-                modifier = Modifier.padding(bottom = 8.dp)
+            Image(
+                painter = painterResource(R.drawable.logo),
+                contentDescription = "Logo",
+                modifier = Modifier
+                    .size(180.dp)
             )
+
             Text(
-                text = "Sign Language",
+                text = "Inclusio",
                 style = MaterialTheme.typography.headlineLarge,
                 color = AppAccent,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 4.dp)
-            )
-            Text(
-                text = "Learning App",
-                style = MaterialTheme.typography.titleMedium,
-                color = AppTextPrimary.copy(alpha = 0.7f),
-                modifier = Modifier.padding(bottom = 48.dp)
             )
 
             // Name field
@@ -232,6 +237,29 @@ fun RegisterScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
+            // Terms and Conditions
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = acceptTerms,
+                    onCheckedChange = { acceptTerms = it },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = AppAccent,
+                        uncheckedColor = AppTextPrimary.copy(alpha = 0.6f)
+                    )
+                )
+
+                Text(
+                    text = "Acepto los términos y condiciones",
+                    color = AppTextPrimary.copy(alpha = 0.8f),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -242,12 +270,17 @@ fun RegisterScreen(
                     error = ""
 
                     scope.launch {
+                        if (!acceptTerms) {
+                            error = "Debes aceptar los términos y condiciones."
+                            return@launch
+                        }
                         val success = authViewModel.registerWithEmail(
                             name = name,
                             username = username,
                             email = email,
                             password = password
                         )
+
 
                         loading = false
 
@@ -266,7 +299,13 @@ fun RegisterScreen(
                     disabledContainerColor = AppButtonColor.copy(alpha = 0.5f),
                     disabledContentColor = Color.White.copy(alpha = 0.7f)
                 ),
-                enabled = !loading && name.isNotBlank() && username.isNotBlank() && email.isNotBlank() && password.isNotBlank()
+                enabled = !loading &&
+                        name.isNotBlank() &&
+                        username.isNotBlank() &&
+                        email.isNotBlank() &&
+                        password.isNotBlank() &&
+                        acceptTerms
+
             ) {
                 if (loading) {
                     CircularProgressIndicator(

@@ -9,11 +9,14 @@ import com.example.firebase_lsm_pp.components.shared.GoogleUsernameScreen
 import com.example.firebase_lsm_pp.screens.DictionaryScreen
 import com.example.firebase_lsm_pp.screens.HomeScreen
 import com.example.firebase_lsm_pp.screens.LeaderboardScreen
+import com.example.firebase_lsm_pp.screens.LessonDetailScreen
 import com.example.firebase_lsm_pp.screens.LoginScreen
 import com.example.firebase_lsm_pp.screens.MainScreen
 import com.example.firebase_lsm_pp.screens.RegisterScreen
 import com.example.firebase_lsm_pp.screens.StreakScreen
 import com.example.firebase_lsm_pp.screens.UserScreen
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 
 sealed class Routes(val route: String) {
     object Login : Routes("login")
@@ -97,8 +100,24 @@ fun AppNavGraph() {
         /** USER */
         composable(Routes.User.route) {
             MainScreen(navController = navController) {
-                UserScreen()
+                UserScreen(navController = navController)
             }
+        }
+
+        /** LESSON DETAIL */
+        composable(
+            route = "lesson/{lessonTitle}",
+            arguments = listOf(
+                navArgument("lessonTitle") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val lessonTitle = backStackEntry.arguments?.getString("lessonTitle") ?: ""
+            LessonDetailScreen(
+                navController = navController,
+                lessonTitle = lessonTitle
+            )
         }
     }
 }
