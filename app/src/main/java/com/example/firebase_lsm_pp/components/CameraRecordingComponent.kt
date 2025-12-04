@@ -47,7 +47,6 @@ import java.util.Locale
 @Composable
 fun CameraRecordingDialog(
     onDismiss: () -> Unit,
-    expectedWord: String,
     onVideoSaved: (File) -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -84,7 +83,6 @@ fun CameraRecordingDialog(
         if (hasPermissions) {
             CameraContent(
                 onDismiss = onDismiss,
-                expectedWord = expectedWord,
                 onVideoSaved = onVideoSaved
             )
         } else {
@@ -103,7 +101,6 @@ fun CameraRecordingDialog(
 @Composable
 fun CameraContent(
     onDismiss: () -> Unit,
-    expectedWord: String,
     onVideoSaved: (File) -> Unit
 ) {
     val context = LocalContext.current
@@ -153,43 +150,35 @@ fun CameraContent(
             
             val outputOptions = FileOutputOptions.Builder(videoFile).build()
             
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-                recording = cameraController.startRecording(
-                    outputOptions,
-                    AudioConfig.create(true),
-                    ContextCompat.getMainExecutor(context)
-                ) { event ->
-                    if (event is VideoRecordEvent.Finalize) {
-                        if (!event.hasError()) {
-                            recordedVideoFile = videoFile
-                            android.util.Log.d("CameraRecording", "Video guardado en: ${videoFile.absolutePath}")
-                            onVideoSaved(videoFile)
-                        } else {
-                            recording?.close()
-                            recording = null
-                            val errorMsg = "Error al grabar: ${event.error}"
-                            android.util.Log.e("CameraRecording", errorMsg, event.cause)
-                            Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
-                        }
+            recording = cameraController.startRecording(
+                outputOptions,
+                AudioConfig.create(true),
+                ContextCompat.getMainExecutor(context)
+            ) { event ->
+                if (event is VideoRecordEvent.Finalize) {
+                    if (!event.hasError()) {
+                        recordedVideoFile = videoFile
+                        onVideoSaved(videoFile)
+                    } else {
+                        recording?.close()
+                        recording = null
+                        Toast.makeText(context, "Error al grabar", Toast.LENGTH_SHORT).show()
                     }
                 }
-                isRecording = true
-
-                // Timer de 5 segundos
-                for (i in 0..5) {
-                    recordingTime = i
-                    if (i < 5) delay(1000)
-                }
-                
-                // Detener grabación
-                recording?.stop()
-                recording = null
-                isRecording = false
-                recordingState = RecordingState.Finished
-            } else {
-                Toast.makeText(context, "Permiso de audio requerido", Toast.LENGTH_SHORT).show()
-                recordingState = RecordingState.Idle
             }
+            isRecording = true
+
+            // Timer de 5 segundos
+            for (i in 0..5) {
+                recordingTime = i
+                if (i < 5) delay(1000)
+            }
+            
+            // Detener grabación
+            recording?.stop()
+            recording = null
+            isRecording = false
+            recordingState = RecordingState.Finished
         }
     }
 
@@ -197,12 +186,12 @@ fun CameraContent(
     LaunchedEffect(recordingState) {
         if (recordingState == RecordingState.Sending) {
             recordedVideoFile?.let { file ->
-                val result = signService.evaluateSign(file, expectedWord)
+                val result = signService.evaluateSign(file)
                 result.onSuccess { response ->
                     feedbackHints = response.hints
                     recordingState = RecordingState.Feedback
                 }.onFailure {
-                    Toast.makeText(context, "Error al evaluar seña: ${it.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Error al evaluar seña", Toast.LENGTH_SHORT).show()
                     recordingState = RecordingState.Finished
                 }
             }
