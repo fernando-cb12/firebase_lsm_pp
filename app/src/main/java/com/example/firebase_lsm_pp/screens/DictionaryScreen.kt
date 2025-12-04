@@ -32,6 +32,7 @@ import com.example.firebase_lsm_pp.ui.theme.AppAccent
 import com.example.firebase_lsm_pp.ui.theme.AppBackground
 import com.example.firebase_lsm_pp.ui.theme.AppButtonColor
 import com.example.firebase_lsm_pp.ui.theme.AppMainText
+import com.example.firebase_lsm_pp.components.CameraRecordingDialog
 
 @Composable
 fun DictionaryScreen() {
@@ -236,6 +237,14 @@ fun SignDetailDialog(
     sign: Sign,
     onDismiss: () -> Unit
 ) {
+    var showCamera by remember { mutableStateOf(false) }
+
+    if (showCamera) {
+        CameraRecordingDialog(
+            onDismiss = { showCamera = false }
+        )
+    }
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
@@ -320,24 +329,50 @@ fun SignDetailDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Botón "Entendido"
-                Button(
-                    onClick = onDismiss,
+                // Botones de Probar y Cerrar
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp)
                         .padding(horizontal = 24.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = AppButtonColor
-                    )
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = "Entendido",
-                        color = AppMainText,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+                    // Botón Probar
+                    Button(
+                        onClick = { showCamera = true },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = AppButtonColor
+                        )
+                    ) {
+                        Text(
+                            text = "Probar",
+                            color = AppMainText,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
+                    // Botón Cerrar
+                    Button(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = AppButtonColor
+                        )
+                    ) {
+                        Text(
+                            text = "Cerrar",
+                            color = AppMainText,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
             }
